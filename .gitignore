@@ -1,3 +1,6 @@
 
 //bin dir is output dir
 /bin/
+/MixieClient/old/
+/MixieClient/ui/
+/MixieServer/old/
