@@ -7,6 +7,6 @@ users:
 pass:
 [{"max":"00000"},.....{"login":"pass"}]
 messageToUserFromClient:
-{"type":"message","sender":"I","reciver":"you","message":"Hello,bro" };
+{"type":"message","sender":"I","receiver":"you","message":"Hello,bro" };
 messageToUserFromServerOfuser:
 {"type":"newMessages","from":"i","message":"hello bro"}

@@ -15,6 +15,7 @@ class Server : public QTcpServer
     Q_OBJECT
 public:
     Server();
+    Server(size_t port);
     ~Server() = default;
 public slots:
     void run();
@@ -26,6 +27,8 @@ private:
     QByteArray data;
     QJsonDocument doc;
     QJsonParseError docErr;
+private:
+    size_t port;
 };
 
 #endif // SERVER_H
