@@ -10,6 +10,17 @@
 #include <QJsonParseError>
 #include <QFile>
 
+#include <QVector>
+#include <QHostAddress>
+#include <QObject>
+#include <QMap>
+
+//class QTcpServer;
+//class QTcpSocket;
+//class ChatMessage;
+
+//#include <thread>
+
 class Server : public QTcpServer
 {
     Q_OBJECT
@@ -22,13 +33,22 @@ public slots:
     void incomingConnection(qintptr socketDescriptor);
     void sockReady();
     void sockDisc();
+    //void sendMessage(QString reciever,QString message);
 private:
-    QTcpSocket* socket;
+    //QVector<QPair<QTcpSocket*,QString>> sockets;
     QByteArray data;
     QJsonDocument doc;
     QJsonParseError docErr;
 private:
     size_t port;
+    //QTcpSocket* socket;
+    //QTcpServer * const m_listener;
+    struct ConnectionInfo {
+            QString m_login;
+            QByteArray m_clientBuffer;
+            qintptr id;
+    };
+    QMap<QTcpSocket*, ConnectionInfo> m_clients;
 };
 
 #endif // SERVER_H

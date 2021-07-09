@@ -18,23 +18,35 @@ void Server::run()
     {
         qDebug() << "Can't listen....";
     }
+    //connect(this, SIGNAL(newConnection()), this, SLOT(incomingConnection()));
 }
 
 void Server::incomingConnection(qintptr socketDescriptor)
 {
-    socket = new QTcpSocket(this);
-    socket->setSocketDescriptor(socketDescriptor);
-    connect(socket,SIGNAL(readyRead()),this,SLOT(sockReady()));
-    connect(socket,SIGNAL(disconnected()),this,SLOT(sockDisc()));
+    qDebug() << "New Connected" << socketDescriptor;
+    QTcpSocket* client = new QTcpSocket(this);
+    client->setSocketDescriptor(socketDescriptor);
+    //client->setSocketDescriptor(socketDescriptor);
+    connect(client,SIGNAL(readyRead()),this,SLOT(sockReady()));
+    connect(client,SIGNAL(disconnected()),this,SLOT(sockDisc()));
     //ADD function for new user in users.json!!!
     qDebug() << socketDescriptor << "Client Connected";
     QString messageForNewClient = QString("{\"type\":\"connect\",\"name\":\"%1\"}").arg(socketDescriptor);
-    socket->write(messageForNewClient.toStdString().c_str());
+    auto t = messageForNewClient.toStdString();
+    qDebug() << t.c_str();
+    if(client->isOpen()){
+        client->write(t.c_str());
+    }
     qDebug() << "Sending InitMssage for new client";
+    //sockets.push_back({ socket,QString::number(socketDescriptor) });
+    m_clients[client].id = socketDescriptor;
 }
 
 void Server::sockReady(){
-    data = socket->readAll();
+    QTcpSocket* client = dynamic_cast< QTcpSocket*>(sender());
+    if(!client)
+        return;
+    data = client->readAll();
     qDebug() << "Server get data - " << data;
     //
     doc = QJsonDocument::fromJson(data,&docErr);
@@ -46,9 +58,9 @@ void Server::sockReady(){
             if (file.open(QIODevice::ReadOnly | QFile::Text)) {
                 QByteArray fromFile = file.readAll();
                 QByteArray res = "{\"type\":\"resSelect\",\"result\":" + fromFile + "}";
-                socket->write(res);
+                client->write(res);
                 qDebug() << "Sending...";
-                socket->waitForBytesWritten(500);
+                client->waitForBytesWritten(500);
             }
             else {
                 qDebug() << "Error open";
@@ -58,8 +70,12 @@ void Server::sockReady(){
             auto sender = doc.object().value("sender").toString();
             auto receiver = doc.object().value("receiver").toString();
             auto message = doc.object().value("message").toString();
-
-
+            auto packet =
+            QString("{\"type\":\"newMessages\", \"from\" : \"%1\", \"message\" : \"%2\"}").arg(sender,message);
+            for (auto& socket : m_clients.keys()) {
+                socket->write(packet.toStdString().c_str());
+                socket->waitForBytesWritten(500);
+            }
             //messageToUserFromClient:
             //{"type":"message", "sender" : "I", "receiver" : "you", "message" : "Hello,bro" };
             //messageToUserFromServerOfuser:
@@ -73,6 +89,7 @@ void Server::sockReady(){
 }
 
 void Server::sockDisc(){
+    QTcpSocket* client = dynamic_cast< QTcpSocket*>(sender());
     qDebug() << "Client disconnected";
-    socket->deleteLater();
+    client->deleteLater();
 }

@@ -39,11 +39,14 @@ void MainWindow::sockReady(){
         doc = QJsonDocument::fromJson(data,&docErr);
 
         if(docErr.errorString().toInt() == QJsonParseError::NoError){
-           if(doc.object().value("type").toString() == "connect" && doc.object().value("status").toString() == "YES"){
-                ui->textEdit->append("Соедение установлено");
-
+            //"{\"type\":\"connect\",\"name\":\"%1\"}
+           if(doc.object().value("type").toString() == "connect"){
+               auto name1 = doc.object().value("name").toString();
+               ui->textEdit->append("Соедение установлено");
+               ui->textEdit->append(name1);
+               name = name1;
                 if(socket->isOpen()){
-                    socket->write( "{\"type\":\"select\",\"params\":\"users\" }");
+                    socket->write( "{\"type\":\"getUsers\"}");
                     socket->waitForBytesWritten(500);
                 }else{
                     ui->statusbar->showMessage("Error parse users");
@@ -59,6 +62,12 @@ void MainWindow::sockReady(){
                    model->appendRow(col);
                }
                ui->tableView->setModel(model);
+           }else if (doc.object().value("type").toString() == "newMessages"){
+               //messageToUserFromServerOfuser:
+               //{"type":"newMessages", "from" : "i", "message" : "hello bro"}
+               auto from = doc.object().value("from").toString();
+               auto mess = doc.object().value("message").toString();
+               ui->textEdit->append(QString("From %1 - ").arg(from) + mess);
            }else{
                 ui->textEdit->append("Соедение2 не установлено");
            }
@@ -75,14 +84,19 @@ void MainWindow::sockDisc(){
     socket->deleteLater();
 }
 
-void MainWindow::on_pushButton_clicked()
+
+
+
+void MainWindow::on_pushButton_2_clicked()
 {
+    auto text = ui->lineEdit->text();
+    ui->lineEdit->clear();
 
-}
+//messageToUserFromClient:
+//{"type":"message","sender":"I","receiver":"you","message":"Hello,bro" };
 
-
-void MainWindow::on_pushButton_3_clicked()
-{
+    auto mess = QString("{\"type\":\"message\",\"sender\":\"%1\",\"receiver\":\"you\",\"message\":\"%2\" }").arg(name,text);
+    socket->write(mess.toStdString().c_str());
 
 }
 

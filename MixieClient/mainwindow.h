@@ -27,11 +27,11 @@ public slots:
     void sockReady();
     void sockDisc();
 private slots:
-    void on_pushButton_clicked();
 
-    void on_pushButton_3_clicked();
+    void on_pushButton_2_clicked();
 
 private:
+    QString name;
     Ui::MainWindow *ui;
     QTcpSocket* socket;
     QByteArray data;
