@@ -2,14 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+
 #include <QTcpSocket>
-
-
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QJsonArray>
-
 #include <QStandardItem>
 
 QT_BEGIN_NAMESPACE
@@ -27,9 +25,7 @@ public slots:
     void sockReady();
     void sockDisc();
 private slots:
-
     void on_pushButton_2_clicked();
-
 private:
     QString name;
     Ui::MainWindow *ui;
