@@ -2,5 +2,7 @@
 //bin dir is output dir
 /bin/
 /MixieClient/old/
+/MixieClient/.vs/
 /MixieClient/ui/
 /MixieServer/old/
+/MixieServer/.vs/

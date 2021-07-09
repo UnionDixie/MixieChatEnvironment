@@ -1,0 +1,12 @@
+setName:
+{"type":"changeName","name":"currName","newName":"Muuuu"}
+getUsers:
+{"type":"getUsers"}
+users:
+[{"name":"sergey"},{"name":"max"},{"name":"ivan"}]
+pass:
+[{"max":"00000"},.....{"login":"pass"}]
+messageToUserFromClient:
+{"type":"message","sender":"I","reciver":"you","message":"Hello,bro" };
+messageToUserFromServerOfuser:
+{"type":"newMessages","from":"i","message":"hello bro"}

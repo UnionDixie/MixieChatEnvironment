@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>290</x>
-      <y>180</y>
+      <y>160</y>
       <width>161</width>
       <height>81</height>
      </rect>
@@ -51,13 +51,36 @@
     <property name="geometry">
      <rect>
       <x>290</x>
-      <y>280</y>
+      <y>330</y>
       <width>161</width>
       <height>51</height>
      </rect>
     </property>
     <property name="text">
      <string>Send</string>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tableView">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>50</y>
+      <width>256</width>
+      <height>192</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_3">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>260</y>
+      <width>141</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>GeUsers</string>
     </property>
    </widget>
   </widget>

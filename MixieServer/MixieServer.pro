@@ -20,4 +20,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     src/server.h
 
+DISTFILES += \
+    users.json
+
 
