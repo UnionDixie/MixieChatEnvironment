@@ -49,6 +49,13 @@ private:
             qintptr id;
     };
     QMap<QTcpSocket*, ConnectionInfo> m_clients;
+    QMap<QString, QPair<QTcpSocket*,ConnectionInfo>> clients;
+private:
+    void writeUsersToJsonFile();
+    QByteArray getUsersFromJsonFile();
+    void sendMessage(QJsonDocument& newMessage);
+    void changeName(QJsonDocument& events);
+    void sendUsers(QTcpSocket* user);
 };
 
 #endif // SERVER_H

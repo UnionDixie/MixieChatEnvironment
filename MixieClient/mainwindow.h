@@ -10,6 +10,9 @@
 #include <QJsonArray>
 #include <QStandardItem>
 
+#include <QStandardItem>
+#include <QListWidgetItem>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -25,7 +28,10 @@ public slots:
     void sockReady();
     void sockDisc();
 private slots:
-    void on_pushButton_2_clicked();
+    void on_pushButton_clicked();
+
+    void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
+
 private:
     QString name;
     Ui::MainWindow *ui;

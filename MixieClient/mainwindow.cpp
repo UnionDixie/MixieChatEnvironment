@@ -27,9 +27,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->textEdit->setReadOnly(true);
 
     ui->listWidget->setFocusPolicy(Qt::NoFocus);
-    ui->listWidget->addItem("You!");
+    ui->listWidget->addItem("Test User!");
 
     ui->statusbar->showMessage("Ok");
+
+    QPixmap pixmap(":/img/Data/send button.png");
+    QIcon ButtonIcon(pixmap);
+    ui->pushButton->setIcon(ButtonIcon);
+    ui->pushButton->setIconSize(pixmap.rect().size());
 }
 
 MainWindow::~MainWindow()
@@ -38,7 +43,7 @@ MainWindow::~MainWindow()
 }
 
 
-//refactoring
+//refactoring this pls!!!
 void MainWindow::sockReady(){
     if(socket->waitForConnected(500)){
         socket->waitForReadyRead(500);
@@ -50,22 +55,36 @@ void MainWindow::sockReady(){
         if(docErr.errorString().toInt() == QJsonParseError::NoError){
             //"{\"type\":\"connect\",\"name\":\"%1\"}
            if(doc.object().value("type").toString() == "connect"){
-               auto name1 = doc.object().value("name").toString();
+               auto id = doc.object().value("name").toString();
                ui->textEdit->append("Соедение установлено");
-               ui->textEdit->append(name1);
-               name = name1;
+               ui->textEdit->append(id);
                bool ok;
-               QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
+               name = QInputDialog::getText(this, tr("QInputDialog::getText()"),
                                                      tr("User name:"), QLineEdit::Normal,
                                                      QDir::home().dirName(), &ok);
-                qDebug() << text;
-                if(socket->isOpen()){
-                    socket->write( "{\"type\":\"getUsers\"}");
+            //setName:
+            //{"type":"changeName","name":"currName","newName":"Muuuu"}
+            auto packetForChangeName
+            = QString("{\"type\":\"changeName\",\"name\":\"%1\",\"newName\":\"%2\"}").arg(id,name);
+
+               if(socket->isOpen()){
+                    socket->write(packetForChangeName.toStdString().c_str());
+                    //socket->write( "{\"type\":\"getUsers\"}");
                     socket->waitForBytesWritten(500);
                 }else{
                     ui->statusbar->showMessage("Error parse users");
                 }
-           }else if (doc.object().value("type").toString() == "resSelect"){
+           }
+           else if(doc.object().value("type").toString() == "nameChanged"){
+               if(socket->isOpen()){
+                   socket->write( "{\"type\":\"getUsers\"}");
+                   socket->waitForBytesWritten(500);
+                }else{
+                    ui->statusbar->showMessage("Error parse users");
+               }
+           }
+           else if (doc.object().value("type").toString() == "resSelect"){
+               ui->listWidget->clear();
                QJsonArray docA = doc.object().value("result").toArray();
                for(const auto& it : docA){
                   ui->listWidget->addItem(it.toObject().value("name").toString());
@@ -77,10 +96,10 @@ void MainWindow::sockReady(){
                auto mess = doc.object().value("message").toString();
                ui->textEdit->append(QString("From %1 - ").arg(from) + mess);
            }else{
-                ui->textEdit->append("Соедение2 не установлено");
+                ui->textEdit->append("err pars");
            }
         }else{
-             ui->textEdit->append("Соедение1 не установлено");
+             ui->textEdit->append("Err json");
         }
     }
 
@@ -90,7 +109,9 @@ void MainWindow::sockDisc(){
     socket->deleteLater();
 }
 
-void MainWindow::on_pushButton_2_clicked()
+
+
+void MainWindow::on_pushButton_clicked()
 {
     QString receiver = "All";
     if(auto it = ui->listWidget->currentItem(); it != nullptr){
@@ -104,3 +125,10 @@ void MainWindow::on_pushButton_2_clicked()
     ui->lineEdit->clear();
     ui->statusbar->showMessage("Ok sent...");
 }
+
+
+void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    qDebug() << item->text();
+}
+
