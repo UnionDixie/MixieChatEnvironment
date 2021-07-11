@@ -7,6 +7,9 @@
 #include <QFile>
 #include <QMap>
 
+#include <QSqlDatabase>
+#include <QSqlQuery>
+
 class JsonWrapper
 {
 public:
@@ -18,6 +21,7 @@ public:
     ~JsonWrapper() = default;
 private:
     QMap<QString, QString> rules;
+    QSqlDatabase db;
 };
 
 #endif // JSONWRAPPER_H
