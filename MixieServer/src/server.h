@@ -1,25 +1,16 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-
 #include <QTcpServer>
 #include <QTcpSocket>
-
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QFile>
-
 #include <QVector>
 #include <QHostAddress>
 #include <QObject>
 #include <QMap>
-
-//class QTcpServer;
-//class QTcpSocket;
-//class ChatMessage;
-
-//#include <thread>
 
 class Server : public QTcpServer
 {
@@ -33,23 +24,18 @@ public slots:
     void incomingConnection(qintptr socketDescriptor);
     void sockReady();
     void sockDisc();
-    //void sendMessage(QString reciever,QString message);
 private:
-    //QVector<QPair<QTcpSocket*,QString>> sockets;
     QByteArray data;
     QJsonDocument doc;
     QJsonParseError docErr;
-private:
     size_t port;
-    //QTcpSocket* socket;
-    //QTcpServer * const m_listener;
-    struct ConnectionInfo {
-            QString m_login;
-            QByteArray m_clientBuffer;
-            qintptr id;
+    struct ClientInfo {
+            QString login;
+            QByteArray bufferWhatSend;
+            qintptr socketDescriptor;
     };
-    QMap<QTcpSocket*, ConnectionInfo> m_clients;
-    QMap<QString, QPair<QTcpSocket*,ConnectionInfo>> clients;
+    QMap<QTcpSocket*, ClientInfo> socketToClient;
+    QMap<QString, QTcpSocket*> clientToSocket;
 private:
     void writeUsersToJsonFile();
     QByteArray getUsersFromJsonFile();

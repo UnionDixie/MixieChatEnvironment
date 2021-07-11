@@ -3,62 +3,52 @@
 Server::Server() : Server(2345) {}
 
 Server::Server(size_t port) : port(port)
-{
-    qDebug() << "I'm born 0_0";
+{ 
+    qDebug() << "Create server..." 
+             << "Current time - " << QDateTime::currentDateTime().toString() 
+             << "The version of Qt is " << qVersion();
 }
-
 
 void Server::run()
 {
     if (listen(QHostAddress::LocalHost, port))
-    {
-        qDebug() << "Listening....";
-    }
-    else 
-    {
-        qDebug() << "Can't listen....";
-    }
-    //connect(this, SIGNAL(newConnection()), this, SLOT(incomingConnection()));
+        qDebug() << "Listening port " << port;
+    else
+        qDebug() << "Can't listen port " << port;
 }
 
 void Server::incomingConnection(qintptr socketDescriptor)
 {
-    qDebug() << "New Connected" << socketDescriptor;
+    qDebug() << "New User connecting";
     QTcpSocket* client = new QTcpSocket(this);
     client->setSocketDescriptor(socketDescriptor);
-    //client->setSocketDescriptor(socketDescriptor);
     connect(client,SIGNAL(readyRead()),this,SLOT(sockReady()));
     connect(client,SIGNAL(disconnected()),this,SLOT(sockDisc()));
-    //ADD function for new user in users.json!!!
     qDebug() << socketDescriptor << "Client Connected";
-    QString messageForNewClient = QString("{\"type\":\"connect\",\"name\":\"%1\"}").arg(socketDescriptor);
-    auto t = messageForNewClient.toStdString();
-    qDebug() << t.c_str();
+    auto messageForNewClient = QString("{\"type\":\"connect\",\"name\":\"%1\"}").arg(socketDescriptor);
+    qDebug() << "Sending InitMssage for new client" 
+             << messageForNewClient.toStdString().c_str();
     if(client->isOpen()){
-        client->write(t.c_str());
+        client->write(messageForNewClient.toStdString().c_str());
     }
-    qDebug() << "Sending InitMssage for new client";
-    //sockets.push_back({ socket,QString::number(socketDescriptor) });
-    m_clients[client].id = socketDescriptor;
-
-    clients[QString::number(socketDescriptor)].first = client;
-    clients[QString::number(socketDescriptor)].second.id = socketDescriptor;
+    //socketToClient, clientToSocket
+    socketToClient[client].socketDescriptor = socketDescriptor;
+    clientToSocket[QString::number(socketDescriptor)] = client;
 }
 
 
 void Server::writeUsersToJsonFile() {
     QFile file;
     file.setFileName("users.json");
-    file.resize(0);
+    file.resize(0);//clear
     if (file.open(QIODevice::WriteOnly | QFile::Text)) {
         //[{"name":"sergey"},{"name":"max"},{"name":"ivan"}]
         file.write("[");
-        auto count = clients.size() - 1;//last not have ,
-        for (auto& name : clients.keys()) {
+        auto count = clientToSocket.size() - 1;//last not have ,
+        for (auto& name : clientToSocket.keys()) {
             auto packName = QString("{\"name\":\"%1\"}").arg(name);
-            if (count--) {
+            if (count--)
                 packName.push_back(",");
-            }
             file.write(packName.toStdString().c_str());
         }
         file.write("]");
@@ -71,8 +61,7 @@ QByteArray Server::getUsersFromJsonFile() {
     QByteArray res;
     file.setFileName("users.json");
     if (file.open(QIODevice::ReadOnly | QFile::Text)) {
-        QByteArray fromFile = file.readAll();
-        res = "{\"type\":\"resSelect\",\"result\":" + fromFile + "}";
+        res = "{\"type\":\"resSelect\",\"result\":" + file.readAll() + "}";
     }
     else {
         qDebug() << "Error open";
@@ -88,7 +77,7 @@ void Server::sendMessage(QJsonDocument& newMessage) {
     auto packet =
         QString("{\"type\":\"newMessages\", \"from\" : \"%1\", \"message\" : \"%2\"}").arg(sender, message);
     if (receiver == "All") {
-        for (auto& socket : m_clients.keys()) {
+        for (const auto& socket : socketToClient.keys()) {
             if (socket != nullptr) {
                 socket->write(packet.toStdString().c_str());
                 socket->waitForBytesWritten(500);
@@ -96,35 +85,27 @@ void Server::sendMessage(QJsonDocument& newMessage) {
         }
     }
     else {
-        auto& socket = clients[receiver].first;
-        socket->write(packet.toStdString().c_str());
-        socket->waitForBytesWritten(500);
+        const auto& socket = clientToSocket[receiver];
+        if (socket != nullptr) {
+            socket->write(packet.toStdString().c_str());
+            socket->waitForBytesWritten(500);
+        }
     }
-    //messageToUserFromClient:
-    //{"type":"message", "sender" : "I", "receiver" : "you", "message" : "Hello,bro" };
-    //messageToUserFromServerOfuser:
-    //{"type":"newMessages", "from" : "i", "message" : "hello bro"}
 }
 
 void Server::changeName(QJsonDocument& events) {
-    auto id = doc.object().value("name").toString();
-    auto newName = doc.object().value("newName").toString();
-    auto statusMess =
-        QString("{\"type\":\"nameChanged\"}");
-    {
-        auto& it = clients[id];
-        it.second.m_login = newName;
+    const auto id = doc.object().value("name").toString();
+    const auto newName = doc.object().value("newName").toString();
+    const auto statusMess = QString("{\"type\":\"nameChanged\"}");
+    const auto socket = clientToSocket[id];
 
-        clients[newName] = std::move(clients[id]);
-        clients.erase(clients.find(id));
+    auto& it = socketToClient[socket];
+    it.login = newName;
+    clientToSocket[newName] = std::move(clientToSocket[id]);
+    clientToSocket.erase(clientToSocket.find(id));
 
-        m_clients[clients[newName].first].m_login = newName;
-    }
-
-    auto& it = clients[newName];
-
-    it.first->write(statusMess.toStdString().c_str());
-    it.first->waitForBytesWritten(5000);
+    socket->write(statusMess.toStdString().c_str());
+    socket->waitForBytesWritten(500);
 }
 
 void Server::sendUsers(QTcpSocket* client) {
@@ -132,44 +113,48 @@ void Server::sendUsers(QTcpSocket* client) {
     writeUsersToJsonFile();
     client->write(getUsersFromJsonFile());
     qDebug() << "Sending...";
-    client->waitForBytesWritten(1000);
+    client->waitForBytesWritten(500);
 }
 
 void Server::sockReady(){
-    QTcpSocket* client = dynamic_cast< QTcpSocket*>(sender());
-    if(!client)
-        return;
-    data = client->readAll();
-    qDebug() << "Server get data - " << data;
-    //
-    doc = QJsonDocument::fromJson(data,&docErr);
-    if(docErr.errorString().toInt() == QJsonParseError::NoError){
-        if (doc.object().value("type").toString() == "getUsers") {
-            for (const auto& it : clients) {
-                sendUsers(it.first);
+    QTcpSocket* client = dynamic_cast<QTcpSocket*>(sender());
+    if (client != nullptr) {
+        data = client->readAll();
+        qDebug() << "Server get data - " << data;
+        doc = QJsonDocument::fromJson(data, &docErr);
+        if (docErr.errorString().toInt() == QJsonParseError::NoError) {
+            if (doc.object().value("type").toString() == "getUsers") {
+                for (const auto& it : clientToSocket) {
+                    sendUsers(it);
+                }
             }
-        }else if (doc.object().value("type").toString() == "message"){
-            sendMessage(doc);
+            else if (doc.object().value("type").toString() == "message") {
+                sendMessage(doc);
+            }
+            else if (doc.object().value("type").toString() == "changeName") {
+                changeName(doc);
+            }
+            else {
+                qDebug() << "Error json parse";
+            }
         }
-        else if (doc.object().value("type").toString() == "changeName") {
-            changeName(doc);   
-        }else{
-            qDebug() << "Wrong json parse";
+        else {
+            qDebug() << "Warning jsonError";
         }
-     }else{
-         qDebug() << "Waring jsonError";
-     }
+    }
 }
 
 void Server::sockDisc(){
     QTcpSocket* client = dynamic_cast< QTcpSocket*>(sender());
-    qDebug() << "Client disconnected";
-    client->deleteLater();
-    auto& it = m_clients[client];
-    clients.erase(clients.find(it.m_login));
-    if (!clients.empty()) {
-        for (const auto& it : clients) {
-            sendUsers(it.first);
+    qDebug() << "Client " << socketToClient[client].login << " disconnected!";
+    
+    clientToSocket.erase(clientToSocket.find(socketToClient[client].login));
+    socketToClient.erase(socketToClient.find(client));
+   
+    if (!clientToSocket.empty()) {
+        for (const auto& it : clientToSocket) {
+            sendUsers(it);
         }
     }
+    client->deleteLater();
 }
