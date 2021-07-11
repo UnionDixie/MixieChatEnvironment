@@ -12,6 +12,10 @@
 #include <QObject>
 #include <QMap>
 
+#include <functional>
+
+#include "src/jsonwrapper.h"
+
 class Server : public QTcpServer
 {
     Q_OBJECT
@@ -25,9 +29,6 @@ public slots:
     void sockReady();
     void sockDisc();
 private:
-    QByteArray data;
-    QJsonDocument doc;
-    QJsonParseError docErr;
     size_t port;
     struct ClientInfo {
             QString login;
@@ -36,12 +37,13 @@ private:
     };
     QMap<QTcpSocket*, ClientInfo> socketToClient;
     QMap<QString, QTcpSocket*> clientToSocket;
+    QMap<QString, QString> jsonRules;
+    QMap<QString, std::function<void(const QJsonDocument&)>> logicMap;
 private:
-    void writeUsersToJsonFile();
-    QByteArray getUsersFromJsonFile();
-    void sendMessage(QJsonDocument& newMessage);
-    void changeName(QJsonDocument& events);
-    void sendUsers(QTcpSocket* user);
+    JsonWrapper jsonWrapper;
+    void sendMessage(const QJsonDocument& doc);
+    void changeName(const QJsonDocument& doc);
+    void sendUsers(const QJsonDocument& doc);
 };
 
 #endif // SERVER_H

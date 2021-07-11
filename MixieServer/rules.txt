@@ -10,3 +10,13 @@ messageToUserFromClient:
 {"type":"message","sender":"I","receiver":"you","message":"Hello,bro" };
 messageToUserFromServerOfuser:
 {"type":"newMessages","from":"i","message":"hello bro"}
+"{\"type\":\"UsersList\",\"result\":" + file.readAll() + "}";
+
+
+ jsonRules = {
+        {"connect","{\"type\":\"connect\",\"name\":\"%1\"}"} ,
+        {"newMessages","{\"type\":\"newMessages\", \"from\" : \"%1\", \"message\" : \"%2\"}"},
+        {"nameChanged","{\"type\":\"nameChanged\"}"},
+        {"name","{\"name\":\"%1\"}"},
+        {"UserList","{\"type\":\"resSelect\",\"result\": %1 }"}
+    };
