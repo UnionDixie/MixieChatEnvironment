@@ -8,10 +8,10 @@
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QJsonArray>
-#include <QStandardItem>
-
-#include <QStandardItem>
+#include <QMap>
 #include <QListWidgetItem>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -33,11 +33,20 @@ private slots:
     void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
 
 private:
-    QString name;
+    void isConnect(QJsonDocument& doc);
+    void changeName(QJsonDocument& doc);
+    void nameIsChanged(QJsonDocument& doc);
+    void getUsers(QJsonDocument& doc);
+    void getMessage(QJsonDocument& doc);
+    void sendMessage(QJsonDocument& doc);
+    void hideMessageBar();
+    void showMessageBar();
+private:
+    bool dialog = false;
+    QString name, whoRead, id;
     Ui::MainWindow *ui;
     QTcpSocket* socket;
-    QByteArray data;
-    QJsonDocument doc;
-    QJsonParseError docErr;
+    QMap<QString, QString> jsonRules;
+    QMap<QString, std::function<void(QJsonDocument&)>> logicMap;
 };
 #endif // MAINWINDOW_H

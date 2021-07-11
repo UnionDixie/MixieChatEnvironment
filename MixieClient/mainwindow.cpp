@@ -6,11 +6,9 @@
 #include <QDir>
 
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-     qDebug() << "client born";
+    qDebug() << "client born";
     ui->setupUi(this);
 
     socket = new QTcpSocket(this);
@@ -35,6 +33,23 @@ MainWindow::MainWindow(QWidget *parent)
     QIcon ButtonIcon(pixmap);
     ui->pushButton->setIcon(ButtonIcon);
     ui->pushButton->setIconSize(pixmap.rect().size());
+
+    jsonRules = {
+       {"changeName","{\"type\":\"changeName\",\"name\":\"%1\",\"newName\":\"%2\"}"},
+       {"getUsers","{\"type\":\"getUsers\"}"},
+       {"from","From %1 "},
+       {"message","{\"type\":\"message\",\"sender\":\"%1\",\"receiver\":\"%2\",\"message\":\"%3\" }"}
+  
+    };
+
+    logicMap = {
+        {"connect",[=](QJsonDocument& doc) { isConnect(doc); } },
+        {"nameChanged",[=](QJsonDocument& doc) { nameIsChanged(doc); } },
+        {"resSelect",[=](QJsonDocument& doc) { getUsers(doc); } },
+        {"newMessages",[=](QJsonDocument& doc) { getMessage(doc); } },
+    };
+
+
 }
 
 MainWindow::~MainWindow()
@@ -42,64 +57,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+#include "src/logger.h"
 
 //refactoring this pls!!!
 void MainWindow::sockReady(){
     if(socket->waitForConnected(500)){
         socket->waitForReadyRead(500);
-        qDebug() << "client try read data";
-        data = socket->readAll();
+        qDebug() << "Client try read data";
+        auto data = socket->readAll();
         qDebug() << "client get data" << data;
-        doc = QJsonDocument::fromJson(data,&docErr);
-
+        QJsonParseError docErr;
+        auto doc = QJsonDocument::fromJson(data,&docErr);
         if(docErr.errorString().toInt() == QJsonParseError::NoError){
-            //"{\"type\":\"connect\",\"name\":\"%1\"}
-           if(doc.object().value("type").toString() == "connect"){
-               auto id = doc.object().value("name").toString();
-               ui->textEdit->append("Соедение установлено");
-               ui->textEdit->append(id);
-               bool ok;
-               name = QInputDialog::getText(this, tr("QInputDialog::getText()"),
-                                                     tr("User name:"), QLineEdit::Normal,
-                                                     QDir::home().dirName(), &ok);
-            //setName:
-            //{"type":"changeName","name":"currName","newName":"Muuuu"}
-            auto packetForChangeName
-            = QString("{\"type\":\"changeName\",\"name\":\"%1\",\"newName\":\"%2\"}").arg(id,name);
-
-               if(socket->isOpen()){
-                    socket->write(packetForChangeName.toStdString().c_str());
-                    //socket->write( "{\"type\":\"getUsers\"}");
-                    socket->waitForBytesWritten(500);
-                }else{
-                    ui->statusbar->showMessage("Error parse users");
-                }
-           }
-           else if(doc.object().value("type").toString() == "nameChanged"){
-               if(socket->isOpen()){
-                   socket->write( "{\"type\":\"getUsers\"}");
-                   socket->waitForBytesWritten(500);
-                }else{
-                    ui->statusbar->showMessage("Error parse users");
-               }
-           }
-           else if (doc.object().value("type").toString() == "resSelect"){
-               ui->listWidget->clear();
-               QJsonArray docA = doc.object().value("result").toArray();
-               for(const auto& it : docA){
-                  ui->listWidget->addItem(it.toObject().value("name").toString());
-               }
-           }else if (doc.object().value("type").toString() == "newMessages"){
-               //messageToUserFromServerOfuser:
-               //{"type":"newMessages", "from" : "i", "message" : "hello bro"}
-               auto from = doc.object().value("from").toString();
-               auto mess = doc.object().value("message").toString();
-               ui->textEdit->append(QString("From %1 - ").arg(from) + mess);
+           if(auto it = logicMap[doc.object().value("type").toString()];it!=nullptr){
+                it(doc);
            }else{
-                ui->textEdit->append("err pars");
+                ui->textEdit->append("Err parse json");
+                logErr(data);
            }
         }else{
-             ui->textEdit->append("Err json");
+             ui->textEdit->append("Err read json");
+             logErr(data);
         }
     }
 
@@ -113,14 +91,78 @@ void MainWindow::sockDisc(){
 
 void MainWindow::on_pushButton_clicked()
 {
-    QString receiver = "All";
-    if(auto it = ui->listWidget->currentItem(); it != nullptr){
-        receiver = it->text();
-        ui->listWidget->clearSelection();
+    auto tmp = QJsonDocument();
+    sendMessage(tmp);
+}
+
+
+
+void MainWindow::isConnect(QJsonDocument& doc)
+{
+    id = doc.object().value("name").toString();;
+    ui->textEdit->append("Соедение установлено");
+    ui->textEdit->append(id);
+    bool ok = false;
+    while(!ok) {
+        name = QInputDialog::getText(this, tr("Please Enter Name"),
+               tr("User name:"), QLineEdit::Normal,
+               QDir::home().dirName(), &ok);
+        ui->label_3->setText(name);
     }
+    changeName(doc);
+}
+
+void MainWindow::changeName(QJsonDocument& doc)
+{
+    auto packetForChangeName = jsonRules["changeName"].arg(id, name);
+    if (socket->isOpen()) {
+        socket->write(packetForChangeName.toStdString().c_str());
+        socket->waitForBytesWritten(500);
+    }
+    else {
+        ui->statusbar->showMessage("Error socket close");
+    }
+}
+
+void MainWindow::nameIsChanged(QJsonDocument& doc)
+{
+    if (socket->isOpen()) {
+        socket->write(jsonRules["getUsers"].toStdString().c_str());
+        socket->waitForBytesWritten(500);
+    }
+    else {
+        ui->statusbar->showMessage("Error parse users");
+    }
+}
+
+void MainWindow::getUsers(QJsonDocument& doc)
+{
+    ui->listWidget->clear();
+    QJsonArray docA = doc.object().value("result").toArray();
+    for (const auto& it : docA) {
+        ui->listWidget->addItem(it.toObject().value("name").toString());
+    }
+}
+
+void MainWindow::getMessage(QJsonDocument& doc)
+{
+    auto from = doc.object().value("from").toString();
+    if(!dialog){
+       whoRead = from;
+       ui->label_5->setText(whoRead);
+       showMessageBar();
+       dialog = true;
+    }
+    auto mess = doc.object().value("message").toString();
+    ui->textEdit->append(jsonRules["from"].arg(from) + mess);
+}
+
+void MainWindow::sendMessage(QJsonDocument& doc)
+{
+    QString receiver = whoRead;//"All";
     auto text = ui->lineEdit->text();
-    auto mess =
-         QString("{\"type\":\"message\",\"sender\":\"%1\",\"receiver\":\"%2\",\"message\":\"%3\" }").arg(name,receiver,text);
+    ui->textEdit->append(text);
+    auto mess = jsonRules["message"].arg(name, receiver, text);
     socket->write(mess.toStdString().c_str());
     ui->lineEdit->clear();
     ui->statusbar->showMessage("Ok sent...");
@@ -129,6 +171,26 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 {
-    qDebug() << item->text();
+     whoRead = item->text();
+     ui->label_5->setText(whoRead);
+     showMessageBar();
 }
 
+
+
+void MainWindow::hideMessageBar()
+{
+    ui->pushButton->hide();
+    ui->lineEdit->hide();
+    ui->textEdit->hide();
+    ui->label_5->hide();
+}
+void MainWindow::showMessageBar()
+{
+    ui->label_5->show();
+    ui->pushButton->show();
+    ui->lineEdit->show();
+    ui->lineEdit->clear();
+    ui->textEdit->show();
+    ui->textEdit->clear();
+}

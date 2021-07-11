@@ -53,9 +53,9 @@
      <property name="geometry">
       <rect>
        <x>280</x>
-       <y>-1</y>
+       <y>49</y>
        <width>891</width>
-       <height>541</height>
+       <height>491</height>
       </rect>
      </property>
     </widget>
@@ -150,12 +150,31 @@
       <string/>
      </property>
     </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>20</y>
+       <width>181</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Chat</string>
+     </property>
+    </widget>
     <zorder>textEdit</zorder>
     <zorder>widget_2</zorder>
     <zorder>listWidget</zorder>
     <zorder>label_2</zorder>
     <zorder>lineEdit</zorder>
     <zorder>pushButton</zorder>
+    <zorder>label_5</zorder>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

@@ -54,20 +54,10 @@ void Server::sendMessage(const QJsonDocument& doc) {
     auto receiver = doc.object().value("receiver").toString();
     auto message = doc.object().value("message").toString();
     auto packet = jsonRules["newMessages"].arg(sender, message);
-    if (receiver == "All") {
-        for (const auto& socket : socketToClient.keys()) {
-            if (socket != nullptr) {
-                socket->write(packet.toStdString().c_str());
-                socket->waitForBytesWritten(500);
-            }
-        }
-    }
-    else {
-        const auto& socket = clientToSocket[receiver];
-        if (socket != nullptr) {
-            socket->write(packet.toStdString().c_str());
-            socket->waitForBytesWritten(500);
-        }
+    const auto& socket = clientToSocket[receiver];
+    if (socket != nullptr) {
+        socket->write(packet.toStdString().c_str());
+        socket->waitForBytesWritten(500);
     }
 }
 
@@ -87,12 +77,14 @@ void Server::changeName(const QJsonDocument& doc) {
 }
 
 void Server::sendUsers(const QJsonDocument& doc) {
-    for (const auto& it : clientToSocket) {
-        qDebug() << "Try open users.json";
-        jsonWrapper.writeUsersToJsonFile(clientToSocket.keys());
-        it->write(jsonWrapper.getUsersFromJsonFile().toStdString().c_str());
-        qDebug() << "Sending...";
-        it->waitForBytesWritten(500);
+    if (!clientToSocket.empty()) {
+        for (const auto& it : clientToSocket) {
+            qDebug() << "Try open users.json";
+            jsonWrapper.writeUsersToJsonFile(clientToSocket.keys());
+            it->write(jsonWrapper.getUsersFromJsonFile().toStdString().c_str());
+            qDebug() << "Sending...";
+            it->waitForBytesWritten(500);
+        }
     }
 }
 
@@ -123,9 +115,6 @@ void Server::sockDisc(){
     
     clientToSocket.erase(clientToSocket.find(socketToClient[client].login));
     socketToClient.erase(socketToClient.find(client));
-   
-    if (!clientToSocket.empty()) {
-        sendUsers(QJsonDocument());
-    }
+
     client->deleteLater();
 }

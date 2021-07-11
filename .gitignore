@@ -3,7 +3,10 @@
 /bin/
 /MixieClient/old/
 /MixieClient/.vs/
+/MixieClient/debug/
+/MixieClient/release/
 /MixieClient/ui/
 /MixieServer/old/
 /MixieServer/.vs/
 /MixieServer/debug/
+/MixieServer/release/
