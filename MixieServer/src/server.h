@@ -3,18 +3,10 @@
 
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QJsonParseError>
-#include <QFile>
-#include <QVector>
-#include <QHostAddress>
-#include <QObject>
 #include <QMap>
-
 #include <functional>
 
-#include "src/jsonwrapper.h"
+#include "src/json/jsonwrapper.h"
 
 class Server : public QTcpServer
 {
@@ -32,15 +24,15 @@ private:
     size_t port;
     struct ClientInfo {
             QString login;
-            QByteArray bufferWhatSend;
+            QByteArray bufferWhatSend;//remove???
             qintptr socketDescriptor;
     };
     QMap<QTcpSocket*, ClientInfo> socketToClient;
     QMap<QString, QTcpSocket*> clientToSocket;
     QMap<QString, QString> jsonRules;
     QMap<QString, std::function<void(const QJsonDocument&)>> logicMap;
-private:
     JsonWrapper jsonWrapper;
+private:
     void sendMessage(const QJsonDocument& doc);
     void changeName(const QJsonDocument& doc);
     void sendUsers(const QJsonDocument& doc);

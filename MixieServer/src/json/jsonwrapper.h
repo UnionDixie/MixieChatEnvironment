@@ -6,22 +6,19 @@
 #include <QJsonParseError>
 #include <QFile>
 #include <QMap>
-
-#include <QSqlDatabase>
-#include <QSqlQuery>
+#include <QByteArray>
 
 class JsonWrapper
 {
 public:
     JsonWrapper() = default;
-    QString getJsonResponce(QStringList& list);
+    QPair<QString,QJsonDocument> parseData(const QByteArray& data);
     void setRules(QMap<QString, QString>& newRules);
     void writeUsersToJsonFile(QStringList&& users);
     QString getUsersFromJsonFile();
     ~JsonWrapper() = default;
 private:
     QMap<QString, QString> rules;
-    QSqlDatabase db;
 };
 
 #endif // JSONWRAPPER_H
