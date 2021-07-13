@@ -72,7 +72,7 @@ void Server::sendMessage(const QJsonDocument& doc) {
         socket->waitForBytesWritten(500);
     }
     else {
-        qDebug() << "nullptr - 66";
+        qDebug() << "nullptr - 75";
     }
 }
 
@@ -97,9 +97,14 @@ void Server::changeName(const QJsonDocument& doc) {
 void Server::sendUsers(const QJsonDocument& doc) {
     for (const auto& it : clientToSocket) {
         jsonWrapper.writeUsersToJsonFile(clientToSocket.keys());
-        it->write(jsonWrapper.getUsersFromJsonFile().toStdString().c_str());
-        qDebug() << "Sending all users to " << socketToClient[it].login;
-        it->waitForBytesWritten(500);
+        if (auto mess = jsonWrapper.getUsersFromJsonFile().toStdString(); !mess.empty()) {
+            it->write(mess.c_str());
+            qDebug() << "Sending all users to " << socketToClient[it].login;
+            it->waitForBytesWritten(500);
+        }
+        else {
+            qDebug() << "Error";
+        }
     }
 }
 
@@ -147,10 +152,11 @@ void Server::sockReady(){
     }
 }
 
-void Server::sockDisc(){
+void Server::sockDisc() {
     QTcpSocket* client = dynamic_cast< QTcpSocket*>(sender());
     if (client != nullptr) {
         qDebug() << "Client " << socketToClient[client].login << " disconnected!";
+        messageStorage.erase(socketToClient[client].login);
         if (auto it = clientToSocket.find(socketToClient[client].login); it != clientToSocket.end()) {
             clientToSocket.erase(it);
         }

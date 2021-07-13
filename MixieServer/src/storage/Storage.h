@@ -4,14 +4,19 @@
 #include <QString>
 #include <QStringList>
 
+#include "src/sql/SqlWrapper.h"
+
 class Storage
 {
 public:
-	Storage() = default;
+	Storage();
 	~Storage() = default;
 	void write(QString sender, QString receiver, QString message);
 	QStringList get(QString sender, QString receiver);
+	void erase(QString user);
+	void saveDB();
 private:
+	SqlWrapper dbWrapper;
 	QMap<QString, QMap<QString, QStringList>> hashDB;
 };
 
