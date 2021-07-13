@@ -181,7 +181,15 @@ void MainWindow::getDialog(QJsonDocument &doc)
     ui->textEdit->clear();
     QJsonArray docA = doc.object().value("result").toArray();
     for (const auto& it : docA) {
-        ui->textEdit->append(it.toObject().value("mess").toString());
+        auto mess = it.toObject().value("mess").toString();
+        if(!mess.isEmpty()){
+            if(mess[0] != '@'){
+                 ui->textEdit->append("From " + whoRead + " - " + mess);
+            }else{
+                mess.remove(0,1);
+                ui->textEdit->append(mess);
+            }
+        }
     }
     ui->statusbar->showMessage("Ok getDiaglog...");
 }
