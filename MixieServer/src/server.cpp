@@ -12,12 +12,17 @@ Server::Server(size_t port) : port(port)
         {"newMessages","{\"type\":\"newMessages\", \"from\" : \"%1\", \"message\" : \"%2\"}"},
         {"nameChanged","{\"type\":\"nameChanged\"}"},
         {"name","{\"name\":\"%1\"}"},
-        {"UserList","{\"type\":\"resSelect\",\"result\": %1 }"}
+        {"UserList","{\"type\":\"resSelect\",\"result\": %1 }"},
+        {"dialog","{\"type\":\"dialog\",\"result\": [%1] }"},
+        {"mess","{\"mess\": \"%1\" }"}
     };  
     logicMap = {
         {"getUsers",[=](const QJsonDocument& doc) { sendUsers(doc); } },
         {"message",[=](const QJsonDocument& doc) { sendMessage(doc); } },
         {"changeName",[=](const QJsonDocument& doc) { changeName(doc); } },
+        {"getDialog",[=](const QJsonDocument& doc) { sendDialog(doc); } },
+        //getDialog
+        
     };
     jsonWrapper.setRules(jsonRules);
 }
@@ -58,6 +63,9 @@ void Server::sendMessage(const QJsonDocument& doc) {
                receiver = doc.object().value("receiver").toString(),
                message = doc.object().value("message").toString(),
                packet = jsonRules["newMessages"].arg(sender, message);
+    //save message in db
+    messageStorage.write(sender, receiver, message);//it's duplicate receiver sender
+    //
     const auto& socket = clientToSocket[receiver];
     if (socket != nullptr) {
         socket->write(packet.toStdString().c_str());
@@ -68,6 +76,7 @@ void Server::sendMessage(const QJsonDocument& doc) {
     }
 }
 
+//add sync with db
 void Server::changeName(const QJsonDocument& doc) {
     const auto id = doc.object().value("name").toString(),
                newLogin = doc.object().value("newName").toString(),
@@ -91,6 +100,32 @@ void Server::sendUsers(const QJsonDocument& doc) {
         it->write(jsonWrapper.getUsersFromJsonFile().toStdString().c_str());
         qDebug() << "Sending all users to " << socketToClient[it].login;
         it->waitForBytesWritten(500);
+    }
+}
+
+void Server::sendDialog(const QJsonDocument& doc)
+{
+    const auto sender = doc.object().value("sender").toString(),
+               receiver = doc.object().value("receiver").toString();
+    const auto messages = messageStorage.get(sender, receiver);
+    QString messageInJsonFormat;
+    for (const auto& it : messages) {
+        messageInJsonFormat.push_back(jsonRules["mess"].arg(it) + ",");
+    }
+    //[{"name":"1"},{"name":"2"}]
+    messageInJsonFormat.remove(messageInJsonFormat.size() - 1, 1);
+    if (messageInJsonFormat.isEmpty()) {
+        messageInJsonFormat = "[{}]";
+    }
+    auto packet = jsonRules["dialog"].arg(messageInJsonFormat);
+    const auto& socket = clientToSocket[sender];
+    if (socket != nullptr) {
+        socket->write(packet.toStdString().c_str());
+        socket->waitForBytesWritten(500);
+        qDebug() << "Send packet -" << packet;
+    }
+    else {
+        qDebug() << "nullptr - 113";
     }
 }
 

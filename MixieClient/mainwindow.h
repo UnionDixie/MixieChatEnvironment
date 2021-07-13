@@ -39,6 +39,7 @@ private:
     void getUsers(QJsonDocument& doc);
     void getMessage(QJsonDocument& doc);
     void sendMessage(QJsonDocument& doc);
+    void getDialog(QJsonDocument& doc);
     void hideMessageBar();
     void showMessageBar();
 private:
