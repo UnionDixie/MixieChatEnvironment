@@ -3,19 +3,21 @@
 
 #include <QMainWindow>
 
-#include <QTcpSocket>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QJsonParseError>
-#include <QJsonArray>
-#include <QMap>
-#include <QListWidgetItem>
+//#include <QTcpSocket>
+//#include <QJsonObject>
+//#include <QJsonDocument>
+//#include <QJsonParseError>
+//#include <QJsonArray>
+//#include <QMap>
+//#include <QListWidgetItem>
 #include <QtDebug>
-#include <QInputDialog>
-#include <QDir>
-#include <QDesktopWidget>
-#include <functional>
+//#include <QInputDialog>
+//#include <QDir>
+//#include <QDesktopWidget>
+//#include <functional>
 #include <QShortcut>
+
+#include "src/client.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,31 +30,36 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-public slots:
-    void sockReady();
-    void sockDisc();
+signals:
+
+private slots:
+    void showDialogOnUI(const QString& mess);
+    void reqName();
+    void showUsersOnUI(const QStringList& list);
+    void showMessage(const QString& mess);
 private slots:
     void on_pushButton_clicked();
 
     void on_listWidget_itemClicked(QListWidgetItem *item);
 
 private:
-    void isConnect();
-    void changeName();
-    void nameIsChanged();
-    void getUsers();
-    void getMessage();
-    void sendMessage();
-    void getDialog();
+    //void isConnect();
+    //void changeName();
+    //void nameIsChanged();
+    //void getUsers();
+    //void getMessage();
+    //void sendMessage();
+    //void getDialog();
     //void hideMessageBar();
     void showMessageBar();
 private:
-    bool dialog = false;
-    QString name, whoRead, id;
+    Client* client;
+    //bool dialog = false;
+    //QString name, whoRead, id;
     Ui::MainWindow *ui;
-    QTcpSocket* socket;
-    QMap<QString, QString> jsonRules;
-    QMap<QString, std::function<void()>> logicMap;
-    QJsonDocument doc;
+    //QTcpSocket* socket;
+    //QMap<QString, QString> jsonRules;
+    //QMap<QString, std::function<void()>> logicMap;
+    //QJsonDocument doc;
 };
 #endif // MAINWINDOW_H
