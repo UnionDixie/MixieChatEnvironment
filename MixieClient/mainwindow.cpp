@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     int x = (screenGeometry.width() - width()) / 2;
     int y = (screenGeometry.height() - height()) / 2;
     move(x, y);
-    //setWindowIcon(QIcon(QString::fromUtf8(":/img/favicon.png")));
+    setWindowIcon(QIcon(":/img/Data/favicon.png"));
 
     ui->lineEdit->setFocusPolicy(Qt::StrongFocus);
     ui->textEdit->setFocusPolicy(Qt::NoFocus);
@@ -49,6 +49,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         {"dialog",[=]() { getDialog(); } },
     };
 
+    auto enter = new QShortcut(Qt::Key_Return, this);//Key_enter
+    connect(enter,&QShortcut::activated,this,&MainWindow::sendMessage);
+
+    auto reload = new QShortcut(Qt::Key_F5, this);//Key_enter
+    connect(reload,&QShortcut::activated,this,&MainWindow::getUsers);
 
 }
 

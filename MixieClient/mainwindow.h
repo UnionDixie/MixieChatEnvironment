@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QDesktopWidget>
 #include <functional>
+#include <QShortcut>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

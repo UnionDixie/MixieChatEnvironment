@@ -78,7 +78,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>Data/profile photo.png</pixmap>
+      <pixmap resource="data.qrc">:/img/Data/profile photo.png</pixmap>
      </property>
     </widget>
     <widget class="QWidget" name="widget_2" native="true">
@@ -93,19 +93,6 @@
      <property name="styleSheet">
       <string notr="true">background-color: #f9f9f9;</string>
      </property>
-     <widget class="QLabel" name="label_4">
-      <property name="geometry">
-       <rect>
-        <x>100</x>
-        <y>60</y>
-        <width>141</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Press to Edit</string>
-      </property>
-     </widget>
      <widget class="QLabel" name="label">
       <property name="geometry">
        <rect>
@@ -137,6 +124,27 @@
       </property>
       <property name="text">
        <string>USER NAME</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_2">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>50</y>
+        <width>131</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">border-radius: 12px;</string>
+      </property>
+      <property name="text">
+       <string>Press to Edit</string>
       </property>
      </widget>
     </widget>
@@ -185,6 +193,8 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="data.qrc"/>
+ </resources>
  <connections/>
 </ui>
