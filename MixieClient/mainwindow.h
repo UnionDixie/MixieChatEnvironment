@@ -10,7 +10,10 @@
 #include <QJsonArray>
 #include <QMap>
 #include <QListWidgetItem>
-
+#include <QtDebug>
+#include <QInputDialog>
+#include <QDir>
+#include <QDesktopWidget>
 #include <functional>
 
 QT_BEGIN_NAMESPACE
@@ -30,17 +33,17 @@ public slots:
 private slots:
     void on_pushButton_clicked();
 
-    void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
+    void on_listWidget_itemClicked(QListWidgetItem *item);
 
 private:
-    void isConnect(QJsonDocument& doc);
-    void changeName(QJsonDocument& doc);
-    void nameIsChanged(QJsonDocument& doc);
-    void getUsers(QJsonDocument& doc);
-    void getMessage(QJsonDocument& doc);
-    void sendMessage(QJsonDocument& doc);
-    void getDialog(QJsonDocument& doc);
-    void hideMessageBar();
+    void isConnect();
+    void changeName();
+    void nameIsChanged();
+    void getUsers();
+    void getMessage();
+    void sendMessage();
+    void getDialog();
+    //void hideMessageBar();
     void showMessageBar();
 private:
     bool dialog = false;
@@ -48,6 +51,7 @@ private:
     Ui::MainWindow *ui;
     QTcpSocket* socket;
     QMap<QString, QString> jsonRules;
-    QMap<QString, std::function<void(QJsonDocument&)>> logicMap;
+    QMap<QString, std::function<void()>> logicMap;
+    QJsonDocument doc;
 };
 #endif // MAINWINDOW_H

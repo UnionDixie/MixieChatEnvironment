@@ -10,8 +10,10 @@ CONFIG -= app_bundle
 
 SOURCES += \
         main.cpp \
-    src/jsonwrapper.cpp \
-    src/server.cpp
+    src/json/jsonwrapper.cpp \
+    src/server.cpp \
+    src/sql/SqlWrapper.cpp \
+    src/storage/Storage.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -19,8 +21,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    src/jsonwrapper.h \
-    src/server.h
+    src/json/jsonwrapper.h \
+    src/server.h \
+    src/sql/SqlWrapper.h \
+    src/storage/Storage.h
 
 DISTFILES += \
     users.json
