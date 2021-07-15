@@ -5,6 +5,7 @@
 #include <QTcpSocket>
 #include <QMap>
 #include <functional>
+#include <QtDebug>
 
 #include "src/json/jsonwrapper.h"
 #include "src/storage/Storage.h"

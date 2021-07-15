@@ -3,6 +3,7 @@
 #include <QMap>
 #include <QString>
 #include <QStringList>
+#include <QtDebug>
 
 #include "src/sql/SqlWrapper.h"
 

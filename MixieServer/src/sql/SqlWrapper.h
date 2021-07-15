@@ -4,6 +4,7 @@
 #include <QSqlQuery>
 #include <QString>
 #include <QSqlRecord>
+#include <QtDebug>
 
 class SqlWrapper
 {

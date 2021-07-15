@@ -76,7 +76,7 @@ void Server::sendMessage(const QJsonDocument& doc) {
     }
 }
 
-//add sync with db
+
 void Server::changeName(const QJsonDocument& doc) {
     const auto id = doc.object().value("name").toString(),
                newLogin = doc.object().value("newName").toString(),
@@ -105,7 +105,7 @@ void Server::sendUsers(const QJsonDocument& doc) {
             }
         }
         else {
-            qDebug() << "Error nullptr";
+            qDebug() << "Error nullptr 108";
         }
     }
 }
@@ -132,7 +132,7 @@ void Server::sendDialog(const QJsonDocument& doc)
         qDebug() << "Send packet -" << packet;
     }
     else {
-        qDebug() << "nullptr - 113";
+        qDebug() << "nullptr - 135";
     }
 }
 
@@ -150,7 +150,7 @@ void Server::sockReady(){
         }
     }
     else {
-        qDebug() << "nullptr - 119 ";
+        qDebug() << "nullptr - 153 ";
     }
 }
 
@@ -168,6 +168,6 @@ void Server::sockDisc() {
         client->deleteLater();
     }
     else {
-        qDebug() << "nullptr - 122 ";
+        qDebug() << "nullptr - 171 ";
     }
 }

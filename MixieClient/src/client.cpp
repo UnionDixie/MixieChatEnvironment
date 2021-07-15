@@ -149,11 +149,13 @@ void Client::getDialog()
     for (const auto& it : docA) {
         auto mess = it.toObject().value("mess").toString();
         if (!mess.isEmpty()) {
-            if (mess[0] != '@') {
+            auto pos = mess.indexOf('@');
+            auto notFound = -1;
+            if (pos == notFound) {
                 dialog.push_back("From " + whoRead + " - " + mess);
             }
             else {
-                mess.remove(0, 1);
+                mess.remove(pos, 1);
                 dialog.push_back(mess);
             }
         }

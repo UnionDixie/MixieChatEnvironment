@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QMap>
 #include <QByteArray>
+#include <QtDebug>
 
 class JsonWrapper
 {
