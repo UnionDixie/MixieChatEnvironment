@@ -39,10 +39,13 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>180</y>
+       <y>160</y>
        <width>251</width>
-       <height>411</height>
+       <height>431</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-width: 1px; border-style: solid; border-color: blue black black black;</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="inputTextEdit">
@@ -54,31 +57,22 @@
        <height>52</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">border-width: 1px; border-style: solid; border-color: black white black black;
+border-radius: 4px;</string>
+     </property>
     </widget>
     <widget class="QTextEdit" name="historyMessageEdit">
      <property name="geometry">
       <rect>
        <x>280</x>
-       <y>49</y>
+       <y>39</y>
        <width>891</width>
-       <height>491</height>
+       <height>501</height>
       </rect>
      </property>
-    </widget>
-    <widget class="QLabel" name="ico_label">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>40</y>
-       <width>51</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap resource="data.qrc">:/img/Data/profile photo.png</pixmap>
+     <property name="styleSheet">
+      <string notr="true">border-width: 1px; border-style: solid; border-color: black white black black;</string>
      </property>
     </widget>
     <widget class="QWidget" name="widget_2" native="true">
@@ -122,6 +116,13 @@
         <height>31</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
        <string>USER NAME</string>
       </property>
@@ -131,20 +132,36 @@
        <rect>
         <x>90</x>
         <y>50</y>
-        <width>131</width>
+        <width>151</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <pointsize>12</pointsize>
+        <pointsize>10</pointsize>
        </font>
       </property>
       <property name="styleSheet">
        <string notr="true">border-radius: 12px;</string>
       </property>
       <property name="text">
-       <string>Press to Edit</string>
+       <string>Press to Edit(don't work)</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="ico_label">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>51</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="data.qrc">:/img/Data/profile photo.png</pixmap>
       </property>
      </widget>
     </widget>
@@ -168,7 +185,7 @@
      <property name="geometry">
       <rect>
        <x>290</x>
-       <y>20</y>
+       <y>10</y>
        <width>181</width>
        <height>21</height>
       </rect>
@@ -176,6 +193,8 @@
      <property name="font">
       <font>
        <pointsize>11</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
       </font>
      </property>
      <property name="text">
@@ -185,7 +204,6 @@
     <zorder>historyMessageEdit</zorder>
     <zorder>widget_2</zorder>
     <zorder>userListWidget</zorder>
-    <zorder>ico_label</zorder>
     <zorder>inputTextEdit</zorder>
     <zorder>sendButton</zorder>
     <zorder>whoseChatting</zorder>

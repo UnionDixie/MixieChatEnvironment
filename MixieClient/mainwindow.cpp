@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->userListWidget->setFocusPolicy(Qt::NoFocus);
     ui->userListWidget->addItem("Test(FAKE) User!");
 
-    QPixmap sendButtonIcon(":/img/Data/send button.png");
+    QPixmap sendButtonIcon(":/img/Data/send ico.png");
     QIcon ButtonIcon(sendButtonIcon);
     ui->sendButton->setIcon(ButtonIcon);
     ui->sendButton->setIconSize(sendButtonIcon.rect().size());
