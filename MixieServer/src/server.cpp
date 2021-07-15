@@ -96,14 +96,16 @@ void Server::changeName(const QJsonDocument& doc) {
 // write users to json,read from json and send json :)
 void Server::sendUsers(const QJsonDocument& doc) {
     for (const auto& it : clientToSocket) {
-        jsonWrapper.writeUsersToJsonFile(clientToSocket.keys());
-        if (auto mess = jsonWrapper.getUsersFromJsonFile().toStdString(); !mess.empty()) {
-            it->write(mess.c_str());
-            qDebug() << "Sending all users to " << socketToClient[it].login;
-            it->waitForBytesWritten(500);
+        if (it != nullptr) {
+            jsonWrapper.writeUsersToJsonFile(clientToSocket.keys());
+            if (auto mess = jsonWrapper.getUsersFromJsonFile().toStdString(); !mess.empty()) {
+                it->write(mess.c_str());
+                qDebug() << "Sending all users to " << socketToClient[it].login;
+                it->waitForBytesWritten(500);
+            }
         }
         else {
-            qDebug() << "Error";
+            qDebug() << "Error nullptr";
         }
     }
 }

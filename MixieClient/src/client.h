@@ -33,9 +33,9 @@ private slots:
       void sockReady();
       void sockDisc();
 signals:
-    void showDialogOnUI(const QString& mess);
-    void reqNameFromUI();
-    void showUsersOnUI(const QStringList& list);
+    void showDialog(const QString& mess);
+    void requestName();
+    void showUsers(const QStringList& list);
     void showMessage(const QString& mess);
 private:
     void isConnect();

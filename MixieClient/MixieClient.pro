@@ -11,12 +11,13 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    src/jsonwrapper.cpp
+    src/jsonwrapper.cpp \
+	src/client.cpp
 
 HEADERS += \
     mainwindow.h \
     src/jsonwrapper.h \
-    src/logger.h
+	src/client.h
 
 FORMS += \
     mainwindow.ui

@@ -2,19 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
-//#include <QTcpSocket>
-//#include <QJsonObject>
-//#include <QJsonDocument>
-//#include <QJsonParseError>
-//#include <QJsonArray>
-//#include <QMap>
-//#include <QListWidgetItem>
-#include <QtDebug>
-//#include <QInputDialog>
-//#include <QDir>
-//#include <QDesktopWidget>
-//#include <functional>
 #include <QShortcut>
 
 #include "src/client.h"
@@ -30,36 +17,17 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-signals:
-
 private slots:
-    void showDialogOnUI(const QString& mess);
-    void reqName();
-    void showUsersOnUI(const QStringList& list);
+    void showDialog(const QString& mess);
+    void requestName();
+    void showUsers(const QStringList& list);
     void showMessage(const QString& mess);
 private slots:
-    void on_pushButton_clicked();
-
-    void on_listWidget_itemClicked(QListWidgetItem *item);
-
+    void on_sendButton_clicked();
+    void on_userListWidget_itemClicked(QListWidgetItem *item);
 private:
-    //void isConnect();
-    //void changeName();
-    //void nameIsChanged();
-    //void getUsers();
-    //void getMessage();
-    //void sendMessage();
-    //void getDialog();
-    //void hideMessageBar();
     void showMessageBar();
-private:
     Client* client;
-    //bool dialog = false;
-    //QString name, whoRead, id;
     Ui::MainWindow *ui;
-    //QTcpSocket* socket;
-    //QMap<QString, QString> jsonRules;
-    //QMap<QString, std::function<void()>> logicMap;
-    //QJsonDocument doc;
 };
 #endif // MAINWINDOW_H

@@ -18,7 +18,7 @@ Client::Client(QObject *parent) : QObject(parent) , socket(new QTcpSocket(this))
        {"changeName","{\"type\":\"changeName\",\"name\":\"%1\",\"newName\":\"%2\"}"},
        {"getUsers","{\"type\":\"getUsers\"}"},
        {"from","From %1 "},
-       {"message","{\"type\":\"message\",\"sender\":\"%1\",\"receiver\":\"%2\",\"message\":\"%3\" }"},
+       {"message","{\"type\":\"message\",\"sender\":\"%1\",\"receiver\":\"%2\",\"message\":\"%3\n\" }"},
        {"getDialog","{\"type\":\"getDialog\",\"sender\":\"%1\",\"receiver\":\"%2\" }"}
     };
     
@@ -35,12 +35,10 @@ void Client::sockReady() {
             it();
         }
         else {
-            //ui->textEdit->append("Err parse json");
             logErr(data);
         }
     }
     else {
-        //ui->textEdit->append("Err read json");
         logErr(data);
     }
 }
@@ -60,8 +58,6 @@ void Client::getReciever(const QString& reciever)
     }
 }
 
-
-//
 void Client::sockDisc() {
     socket->deleteLater();
 }
@@ -80,7 +76,7 @@ void Client::logErr(const QByteArray& data)
 
 void Client::isConnect() {
     id = doc.object().value("name").toString();
-    emit reqNameFromUI();
+    emit requestName();
 }
 
 void Client::getNameFromUI(const QString& login) {
@@ -96,7 +92,7 @@ void Client::changeName()
         socket->waitForBytesWritten(500);
     }
     else {
-        //ui->statusbar->showMessage("Error socket close");
+        logErr("Error socket close");
     }
 }
 
@@ -107,7 +103,7 @@ void Client::nameIsChanged()
         socket->waitForBytesWritten(500);
     }
     else {
-        //ui->statusbar->showMessage("Error parse users");
+        logErr("Error parse users");
     }
 }
 
@@ -118,7 +114,7 @@ void Client::getUsers()
     for (const auto& it : docA) {
         users.push_back(it.toObject().value("name").toString());
     }
-    emit showUsersOnUI(users);
+    emit showUsers(users);
 }
 
 void Client::getMessage()
@@ -126,36 +122,28 @@ void Client::getMessage()
     auto from = doc.object().value("from").toString();
     if (!dialog) {
         whoRead = from;
-        //ui->label_5->setText(whoRead);
-        //showMessageBar();
         dialog = true;
     }
     auto mess = doc.object().value("message").toString();
-    //emit showMessage
-    //ui->textEdit->append(jsonRules["from"].arg(from) + mess);
+    emit showMessage(jsonRules["from"].arg(from) + mess);
 }
 
 void Client::sendMessage(const QString& text)
 {
     QString receiver = whoRead;
     if (receiver != name) {
-        //auto text = ui->lineEdit->text();
         if (!text.isEmpty()) {
-            //ui->textEdit->append(text);
             auto mess = jsonRules["message"].arg(name, receiver, text);
             socket->write(mess.toStdString().c_str());
-            //ui->lineEdit->clear();
-            //ui->statusbar->showMessage("Ok sent...");
         }
     }
     else {
-        //ui->statusbar->showMessage("Block send yourself...");
+        logErr("Block send yourself...");
     }
 }
 
 void Client::getDialog()
 {
-    //ui->textEdit->clear();
     QString dialog;
     QJsonArray docA = doc.object().value("result").toArray();
     for (const auto& it : docA) {
@@ -163,15 +151,12 @@ void Client::getDialog()
         if (!mess.isEmpty()) {
             if (mess[0] != '@') {
                 dialog.push_back("From " + whoRead + " - " + mess);
-                //ui->textEdit->append("From " + whoRead + " - " + mess);
             }
             else {
                 mess.remove(0, 1);
                 dialog.push_back(mess);
-                //ui->textEdit->append(mess);
             }
         }
     }
-    emit showDialogOnUI(dialog);
-    //ui->statusbar->showMessage("Ok getDiaglog...");
+    emit showDialog(dialog);
 }
