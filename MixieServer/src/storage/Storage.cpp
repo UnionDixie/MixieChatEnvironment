@@ -31,5 +31,6 @@ void Storage::erase(QString user)
 
 void Storage::saveDB()
 {
+    qDebug() << "Save mess to db";
     dbWrapper.saveAll(hashDB);
 }
