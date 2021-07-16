@@ -11,6 +11,7 @@ void Storage::write(QString sender, QString receiver, QString message)
     if (sender != receiver) {
         hashDB[receiver][sender].push_back(message);
     }
+    saveDB();//critical!!!
 }
 
 QStringList Storage::get(QString sender, QString receiver)
@@ -18,6 +19,7 @@ QStringList Storage::get(QString sender, QString receiver)
     return hashDB[sender][receiver];
 }
 
+//critical!!!
 void Storage::erase(QString user)
 {
     qDebug() << hashDB.size() << " " << sizeof(hashDB) * hashDB.size();
