@@ -23,7 +23,7 @@ void Storage::erase(QString user)
     qDebug() << hashDB.size() << " " << sizeof(hashDB) * hashDB.size();
     saveDB();
     if (auto it = hashDB.find(user); it != hashDB.end()) {
-        hashDB.erase(it);
+        //hashDB.erase(it);
     }
 }
 
