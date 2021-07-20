@@ -1,1 +1,2 @@
 https://codernet.ru/books/c_plus/professionalnoe_programmirovanie_na_c_m_shlee/
+DB Browser for SQLite
